@@ -8,7 +8,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Image from "next/image";
 import { useState, type FormEvent } from "react";
-import { LoadingPage } from "~/components/LoadingPage";
+import { LoadingPage, LoadingSpinner } from "~/components/LoadingPage";
 import { toast } from "react-hot-toast";
 
 dayjs.extend(relativeTime);
@@ -58,7 +58,12 @@ const CreatePostWizard = () => {
         onChange={(e) => setInput(e.target.value)}
         disabled={isPosting}
       />
-      <button disabled={isPosting}>Post</button>
+      {!isPosting && <button disabled={isPosting}>Post</button>}
+      {isPosting && (
+        <div className="flex items-center justify-center">
+          <LoadingSpinner size={20} />
+        </div>
+      )}
     </form>
   );
 };
