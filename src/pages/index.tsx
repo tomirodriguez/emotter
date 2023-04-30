@@ -7,7 +7,7 @@ import { type RouterOutputs, api } from "~/utils/api";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Image from "next/image";
-import { LoadingPage } from "~/components/Loading";
+import { LoadingPage } from "~/components/LoadingPage";
 
 dayjs.extend(relativeTime);
 
