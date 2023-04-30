@@ -1,6 +1,32 @@
-import { type GetStaticProps, type NextPage } from "next";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import { type GetStaticPaths, type GetStaticProps, type NextPage } from "next";
 import Head from "next/head";
+import Image from "next/image";
+import { LoadingPage } from "~/components/LoadingPage";
+import { PageLayout } from "~/components/layout";
+import { PostView } from "~/components/postview";
 import { api } from "~/utils/api";
+
+dayjs.extend(relativeTime);
+
+const ProfileFeed = (props: { userId: string }) => {
+  const { data, isLoading } = api.posts.getPostsByUserId.useQuery({
+    userId: props.userId,
+  });
+
+  if (isLoading) return <LoadingPage />;
+
+  if (!data || data.length === 0) return <div> User has not posted</div>;
+
+  return (
+    <div className="flex flex-col">
+      {data.map((fullPost) => (
+        <PostView key={fullPost.post.id} {...fullPost} />
+      ))}
+    </div>
+  );
+};
 
 const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
   const { data } = api.profile.getUserByUsername.useQuery({
@@ -26,6 +52,7 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
         </div>
         <div className="h-16" />
         <div className="border-b border-slate-400 p-4 text-2xl font-bold">{`@${data.username}`}</div>
+        <ProfileFeed userId={data.id} />
       </PageLayout>
     </>
   );
@@ -58,11 +85,6 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
     },
   };
 };
-
-// You should use getStaticPaths if you’re statically pre-rendering pages that use dynamic routes
-import { type GetStaticPaths } from "next";
-import { PageLayout } from "~/components/layout";
-import Image from "next/image";
 
 export const getStaticPaths: GetStaticPaths = () => {
   return {
