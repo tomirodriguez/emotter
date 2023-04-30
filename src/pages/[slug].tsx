@@ -6,6 +6,7 @@ import Image from "next/image";
 import { LoadingPage } from "~/components/LoadingPage";
 import { PageLayout } from "~/components/layout";
 import { PostView } from "~/components/postview";
+import { generateSSGHelper } from "~/server/helpers/ssgHelper";
 import { api } from "~/utils/api";
 
 dayjs.extend(relativeTime);
@@ -58,18 +59,8 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
   );
 };
 
-import { createServerSideHelpers } from "@trpc/react-query/server";
-import superjson from "superjson";
-import { appRouter } from "~/server/api/root";
-import { prisma } from "../server/db";
-
 export const getStaticProps: GetStaticProps = async (ctx) => {
-  const ssg = createServerSideHelpers({
-    router: appRouter,
-    ctx: { prisma, userId: null },
-    transformer: superjson, // optional - adds superjson serialization
-  });
-
+  const ssg = generateSSGHelper();
   const slug = ctx.params?.slug;
 
   if (typeof slug !== "string") throw new Error("No slug");
