@@ -12,13 +12,14 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [16.x]
 
     env:
       DATABASE_URL: "https://fake.com"
 
     steps:
       - uses: actions/checkout@v2
+      - run: npm install pnpm
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
