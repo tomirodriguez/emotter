@@ -2,22 +2,38 @@ import { SignInButton, useUser } from "@clerk/nextjs";
 import { type NextPage } from "next";
 import Head from "next/head";
 
-import { type RouterOutputs, api } from "~/utils/api";
+import { api, type RouterOutputs } from "~/utils/api";
 
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Image from "next/image";
+import { useState, type FormEvent } from "react";
 import { LoadingPage } from "~/components/LoadingPage";
 
 dayjs.extend(relativeTime);
 
 const CreatePostWizard = () => {
   const { user } = useUser();
+  const [input, setInput] = useState("");
+
+  const ctx = api.useContext();
+
+  const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
+    onSuccess: () => {
+      setInput("");
+      void ctx.posts.getAll.invalidate();
+    },
+  });
 
   if (!user) return null;
 
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    mutate({ content: input });
+  };
+
   return (
-    <div className="flex w-full gap-3">
+    <form onSubmit={handleSubmit} className="flex w-full gap-3">
       <Image
         src={user.profileImageUrl}
         alt="Profile image"
@@ -29,8 +45,12 @@ const CreatePostWizard = () => {
         type="text"
         placeholder="Type some emojis!"
         className="grow bg-transparent outline-none"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        disabled={isPosting}
       />
-    </div>
+      <button disabled={isPosting}>Post</button>
+    </form>
   );
 };
 
